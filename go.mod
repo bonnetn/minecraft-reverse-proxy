@@ -1,4 +1,4 @@
-module minecraft-proxy
+module github.com/bonnetn/minecraft-reverse-proxy
 
 go 1.23.4
 

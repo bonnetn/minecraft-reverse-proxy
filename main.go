@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/bonnetn/minecraft-reverse-proxy/internal"
 	"log/slog"
-	"minecraft-proxy/internal"
 	"os"
 )
 
