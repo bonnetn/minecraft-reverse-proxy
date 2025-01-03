@@ -18,7 +18,7 @@ When a Minecraft client connects to your server (e.g., `some.hostname.com`), the
 1. **Set the `PROXY_MAPPING` environment variable** to define your hostname-to-server mappings:
 
    ```bash
-   export PROXY_MAPPING='{"default": "localhost:25565", "servers": {"some.hostname.com": "localhost:25565", "some.other.hostname.com": "localhost:1234"}}'
+   PROXY_MAPPING={"default": "localhost:25565", "servers": {"some.hostname.com": "localhost:25565", "some.other.hostname.com": "localhost:1234"}}
    ```
     - `default`: Any hostnames not defined in `servers` will be routed here by default.
     - `servers`: A key-value map of hostname to `host:port`.
@@ -27,12 +27,12 @@ When a Minecraft client connects to your server (e.g., `some.hostname.com`), the
    By default, the proxy listens on `:25565`. You can change it if you want:
 
    ```bash
-   export PROXY_LISTEN_ADDR=":1234"
+   PROXY_LISTEN_ADDR=":1234"
    ```
 
 3. **Run the proxy**. The exact command may vary depending on your build/distribution:
    ```bash
-   go run main.go
+   $ docker run -p 25565:25565 -e 'PROXY_MAPPING={"default": "localhost:25565", "servers": {"some.hostname.com": "localhost:25565", "some.other.hostname.com": "localhost:1234"}}' ghcr.io/bonnetn/minecraft-reverse-proxy:latest 
    ```
 
 4. **Connect using the hostnames** you configured in `PROXY_MAPPING`. For example, if you set `some.hostname.com` to `localhost:25565`, your players can connect by entering `some.hostname.com` in their Minecraft client.
@@ -42,7 +42,7 @@ When a Minecraft client connects to your server (e.g., `some.hostname.com`), the
 ### Example 1: Proxy on default port (25565)
 
 ```bash
-export PROXY_MAPPING='{
+$ export PROXY_MAPPING='{
   "default": "localhost:25565",
   "servers": {
     "example.com": "192.168.1.50:25566",
@@ -50,7 +50,7 @@ export PROXY_MAPPING='{
   }
 }'
 # Proxy will listen on :25565 by default
-./minecraft-proxy
+$ docker run -p 25565:25565 -e "PROXY_MAPPING=$PROXY_MAPPING" ghcr.io/bonnetn/minecraft-reverse-proxy:latest
 ```
 
 - `example.com` will forward to `192.168.1.50:25566`
@@ -60,16 +60,15 @@ export PROXY_MAPPING='{
 ### Example 2: Proxy on a custom port (1234)
 
 ```bash
-export PROXY_MAPPING='{
+$ export PROXY_MAPPING='{
   "default": "localhost:25565",
   "servers": {
     "alpha.myserver.com": "localhost:25565",
     "beta.myserver.com": "localhost:25600"
   }
 }'
-
-export PROXY_LISTEN_ADDR=":1234"
-./minecraft-proxy
+$ export PROXY_LISTEN_ADDR=":1234"
+$ docker run -p 1234:1234 -e "PROXY_MAPPING=$PROXY_MAPPING" -e "PROXY_LISTEN_ADDR=$PROXY_LISTEN_ADDR" ghcr.io/bonnetn/minecraft-reverse-proxy:latest
 ```
 
 - The proxy will listen for incoming connections on port 1234.
