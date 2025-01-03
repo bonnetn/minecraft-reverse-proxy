@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if err := mainErr(); err != nil {
+	if err := runApp(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
@@ -17,7 +17,7 @@ func main() {
 	os.Exit(0)
 }
 
-func mainErr() error {
+func runApp() error {
 	var logLevel slog.Level
 	switch os.Getenv("LOG_LEVEL") {
 	case "DEBUG":
