@@ -5,75 +5,6 @@ import (
 	"io"
 )
 
-/*
-public static int readVarInt() {
-    int numRead = 0;
-    int result = 0;
-    byte read;
-    do {
-        read = readByte();
-        int value = (read & 0b01111111);
-        result |= (value << (7 * numRead));
-
-        numRead++;
-        if (numRead > 5) {
-            throw new RuntimeException("VarInt is too big");
-        }
-    } while ((read & 0b10000000) != 0);
-
-    return result;
-}
-public static long readVarLong() {
-    int numRead = 0;
-    long result = 0;
-    byte read;
-    do {
-        read = readByte();
-        int value = (read & 0b01111111);
-        result |= (value << (7 * numRead));
-
-        numRead++;
-        if (numRead > 10) {
-            throw new RuntimeException("VarLong is too big");
-        }
-    } while ((read & 0b10000000) != 0);
-
-    return result;
-}
-*/
-
-func readByte(reader io.Reader) (byte, error) {
-	var buf [1]byte
-	_, err := reader.Read(buf[:])
-	if err != nil {
-		return 0, err
-	}
-	return buf[0], nil
-}
-
-func readVarInt(reader io.Reader) (int32, error) {
-	var numRead int32
-	var result int32
-	for {
-		readByte, err := readByte(reader)
-		if err != nil {
-			return 0, err
-		}
-		value := int32(readByte & 0b01111111)
-		result |= value << (7 * numRead)
-
-		numRead++
-		if numRead > 5 {
-			return 0, fmt.Errorf("VarInt is too big")
-		}
-		if (readByte & 0b10000000) == 0 {
-			break
-		}
-	}
-	return result, nil
-
-}
-
 type Packet struct {
 	Length          int32
 	PacketID        int32
@@ -149,4 +80,35 @@ func readString(reader io.Reader) (string, error) {
 	}
 
 	return string(buf), nil
+}
+
+func readByte(reader io.Reader) (byte, error) {
+	var buf [1]byte
+	_, err := reader.Read(buf[:])
+	if err != nil {
+		return 0, err
+	}
+	return buf[0], nil
+}
+
+func readVarInt(reader io.Reader) (int32, error) {
+	var numRead int32
+	var result int32
+	for {
+		readByte, err := readByte(reader)
+		if err != nil {
+			return 0, err
+		}
+		value := int32(readByte & 0b01111111)
+		result |= value << (7 * numRead)
+
+		numRead++
+		if numRead > 5 {
+			return 0, fmt.Errorf("VarInt is too big")
+		}
+		if (readByte & 0b10000000) == 0 {
+			break
+		}
+	}
+	return result, nil
 }
