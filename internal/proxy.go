@@ -69,6 +69,10 @@ func (p *Proxy) handleConnection(ctx context.Context, gameClient net.Conn, connI
 	logger = logger.With("domain", packet.ServerAddress)
 	logger.Debug("Received packet", "packet", packet)
 
+	if packet.PacketID != 0 {
+		return fmt.Errorf("received a packet with an unexpected packet ID: %d", packet.PacketID)
+	}
+
 	var remoteAddr string
 
 	serverAddr, ok := p.mapping.Servers[packet.ServerAddress]
