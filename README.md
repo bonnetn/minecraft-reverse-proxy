@@ -20,7 +20,7 @@ When a Minecraft client connects to your server (e.g., `some.hostname.com`), the
    ```bash
    PROXY_MAPPING={"default": "localhost:25565", "servers": {"some.hostname.com": "localhost:25565", "some.other.hostname.com": "localhost:1234"}}
    ```
-    - `default`: Any hostnames not defined in `servers` will be routed here by default.
+    - `default`: Any hostnames not defined in `servers` will be routed here by default. If not specified, connections that do not match any server will be abruptly closed.
     - `servers`: A key-value map of hostname to `host:port`.
 
 2. **Set the `PROXY_LISTEN_ADDR` environment variable** (optional).  
