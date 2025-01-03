@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"strings"
 )
 
 type Proxy struct {
@@ -66,7 +67,13 @@ func (p *Proxy) handleConnection(ctx context.Context, gameClient net.Conn, connI
 	if err != nil {
 		return fmt.Errorf("failed to read first packet: %w", err)
 	}
-	logger = logger.With("domain", packet.ServerAddress)
+
+	domain := packet.ServerAddress
+	if i := strings.IndexByte(domain, 0); i >= 0 {
+		domain = domain[:i]
+	}
+
+	logger = logger.With("domain", domain)
 	logger.Debug("Received packet", "packet", packet)
 
 	if packet.PacketID != 0 {
@@ -74,11 +81,10 @@ func (p *Proxy) handleConnection(ctx context.Context, gameClient net.Conn, connI
 	}
 
 	var remoteAddr string
-
-	serverAddr, ok := p.mapping.Servers[packet.ServerAddress]
+	serverAddr, ok := p.mapping.Servers[domain]
 	if !ok {
 		if p.mapping.Default == "" {
-			logger.Warn("No server mapping found for domain", "domain", packet.ServerAddress)
+			logger.Warn("No server mapping found for domain", "domain", domain)
 			return nil
 		}
 		remoteAddr = p.mapping.Default
