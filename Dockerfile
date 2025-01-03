@@ -1,9 +1,12 @@
 FROM golang:1.23 as build
 
 WORKDIR /go/src/app
-COPY . .
 
+COPY go.mod go.sum ./
 RUN go mod download
+
+COPY main.go ./
+COPY internal/ ./internal/
 RUN go vet -v
 RUN go test -v
 
