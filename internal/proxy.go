@@ -10,29 +10,29 @@ import (
 	"net"
 )
 
-type App struct {
+type Proxy struct {
 	logger     *slog.Logger
 	listenAddr string
 	mapping    ServerMapping
 }
 
-func NewApp(logger *slog.Logger, listenAddr string, mapping ServerMapping) *App {
-	return &App{logger: logger, listenAddr: listenAddr, mapping: mapping}
+func NewProxy(logger *slog.Logger, listenAddr string, mapping ServerMapping) *Proxy {
+	return &Proxy{logger: logger, listenAddr: listenAddr, mapping: mapping}
 }
 
-func (a *App) Run(ctx context.Context) error {
+func (p *Proxy) Run(ctx context.Context) error {
 	var lc net.ListenConfig
-	l, err := lc.Listen(ctx, "tcp", a.listenAddr)
+	l, err := lc.Listen(ctx, "tcp", p.listenAddr)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 	defer func() {
 		if err := l.Close(); err != nil {
-			a.logger.Error("failed to close listener", "error", err)
+			p.logger.Error("failed to close listener", "error", err)
 		}
 	}()
 
-	a.logger.Info("Proxy is listening", "address", l.Addr().String())
+	p.logger.Info("Proxy is listening", "address", l.Addr().String())
 
 	var connID int64
 	g, ctx := errgroup.WithContext(ctx)
@@ -46,13 +46,13 @@ func (a *App) Run(ctx context.Context) error {
 
 		currentConID := connID
 		g.Go(func() error {
-			return a.handleConnection(ctx, c, currentConID)
+			return p.handleConnection(ctx, c, currentConID)
 		})
 	}
 }
 
-func (a *App) handleConnection(ctx context.Context, gameClient net.Conn, connID int64) error {
-	logger := a.logger.With("connection_id", connID)
+func (p *Proxy) handleConnection(ctx context.Context, gameClient net.Conn, connID int64) error {
+	logger := p.logger.With("connection_id", connID)
 	defer func() {
 		if err := gameClient.Close(); err != nil {
 			logger.Error("failed to close connection to game client", "error", err)
@@ -71,13 +71,13 @@ func (a *App) handleConnection(ctx context.Context, gameClient net.Conn, connID 
 
 	var remoteAddr string
 
-	serverAddr, ok := a.mapping.Servers[packet.ServerAddress]
+	serverAddr, ok := p.mapping.Servers[packet.ServerAddress]
 	if !ok {
-		if a.mapping.Default == "" {
+		if p.mapping.Default == "" {
 			logger.Warn("No server mapping found for domain", "domain", packet.ServerAddress)
 			return nil
 		}
-		remoteAddr = a.mapping.Default
+		remoteAddr = p.mapping.Default
 		logger.Info("No server mapping found for domain, using default server", "remote_addr", remoteAddr)
 	} else {
 		remoteAddr = serverAddr

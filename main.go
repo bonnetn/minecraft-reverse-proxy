@@ -52,6 +52,6 @@ func mainErr() error {
 	}
 
 	ctx := context.Background()
-	app := internal.NewApp(logger, listenAddr, mapping)
-	return app.Run(ctx)
+	proxy := internal.NewProxy(logger, listenAddr, mapping)
+	return proxy.Run(ctx)
 }
