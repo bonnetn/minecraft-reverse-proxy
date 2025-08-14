@@ -1,4 +1,4 @@
-FROM golang:1.24@sha256:61808652990bcaa6981db6a85ecd0099c8fa10a6d49c3bd40194c00b69917856 as build
+FROM golang:1.25@sha256:10a15b9d650c559eff6cb070f3177f1e2fc067cd7412e5ca97c9cb8167a924b7 as build
 
 WORKDIR /go/src/app
 
